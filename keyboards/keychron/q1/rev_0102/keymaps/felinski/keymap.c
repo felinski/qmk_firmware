@@ -37,7 +37,8 @@ enum custom_keycodes {
     Left_Bracket_Curly,
     Right_Bracket_Curly,
     Left_Parenthesis,
-    Right_Parenthesis
+    Right_Parenthesis,
+    Reset_Keyboard
 
 };
 
@@ -51,6 +52,7 @@ enum custom_keycodes {
 #define M_RBC Right_Bracket_Curly
 #define LP Left_Parenthesis
 #define RP Right_Parenthesis
+#define RKB Reset_Keyboard
 
 const key_override_t enter_dfu =
     ko_make_with_layers(MOD_MASK_CTRL, KC_ESC, QK_BOOTLOADER, 1<<WIN_FN);
@@ -97,8 +99,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_LCTL,    KC_LGUI,  KC_LALT,                                KC_SPC,                                 KC_RALT, MO(WIN_FN),KC_RCTL,  KC_LEFT,  KC_DOWN,  KC_RGHT),
 
     [WIN_FN] = LAYOUT_iso_83(
-        KC_ESC,             KC_BRID,  KC_BRIU,  KC_TASK,  KC_FLXP,  RGB_VAD,  RGB_VAI,  KC_MPRV,  KC_MPLY,  KC_MNXT,  KC_MUTE,  KC_VOLD,  KC_VOLU,  KC_TRNS,  KC_TRNS,
-        QK_BOOT,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
+        RKB,                KC_BRID,  KC_BRIU,  KC_TASK,  KC_FLXP,  RGB_VAD,  RGB_VAI,  KC_MPRV,  KC_MPLY,  KC_MNXT,  KC_MUTE,  KC_VOLD,  KC_VOLU,  KC_TRNS,  KC_TRNS,
+        KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
         RGB_TOG,  RGB_MOD,  RGB_VAI,  RGB_HUI,  RGB_SAI,  RGB_SPI,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,                      KC_TRNS,
         KC_TRNS,  RGB_RMOD, RGB_VAD,  RGB_HUD,  RGB_SAD,  RGB_SPD,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
         KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,  TO(WIN_PROG),
@@ -123,7 +125,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             return false;  // Skip all further processing of this key
 
-            //Brackets
+            // Brackets
         case M_LB:
             if (record->event.pressed) {
                 SEND_STRING(SS_DOWN(X_RALT) SS_TAP(X_8) SS_UP(X_RALT));
@@ -139,7 +141,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             return false;
 
-            //Curly Brackets
+            // Curly Brackets
         case M_LBC:
             if (record->event.pressed) {
                 SEND_STRING(SS_DOWN(X_RALT) SS_TAP(X_7) SS_UP(X_RALT));
@@ -155,7 +157,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             return false;
 
-            //Space Cadet Shift
+            // Space Cadet Shift
         case LSFT_T(LP):
             if (record->tap.count && record->event.pressed) {
                 tap_code16(LSFT(KC_8));
@@ -166,6 +168,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             if (record->tap.count && record->event.pressed) {
                 tap_code16(LSFT(KC_9));
                 return false;        // Return false to ignore further processing of key
+            }
+            break;
+
+            // Reset keyboard
+        case RKB:
+            if (keycode == RKB && record->event.pressed && (get_mods() & MOD_MASK_CTRL) != 0) {
+                reset_keyboard(); // thank you /u/Mental_General_5445
+            } else if (record->event.pressed){
+                tap_code16(KC_ESC);
             }
             break;
     }
